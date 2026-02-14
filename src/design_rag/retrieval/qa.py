@@ -33,9 +33,7 @@ def build_context(results: list[dict]) -> str:
     for i, result in enumerate(results, start=1):
         source = result["metadata"].get("source_file", "unknown")
         page = result["metadata"].get("page_number", "?")
-        pieces.append(
-            f"[Source {i}: {source}, page {page}]\n{result['content']}"
-        )
+        pieces.append(f"[Source {i}: {source}, page {page}]\n{result['content']}")
     return "\n\n".join(pieces)
 
 
@@ -62,7 +60,9 @@ def ask(
 
     if not results:
         return {
-            "answer": "No relevant documents found. Please upload some documents first.",
+            "answer": (
+                "No relevant documents found. Please upload some documents first."
+            ),
             "sources": [],
             "model": settings.llm_model,
             "tokens_used": 0,

@@ -5,7 +5,6 @@ These tests run without an OpenAI API key because they only exercise
 the file-reading and text-splitting stages of the pipeline.
 """
 
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -38,9 +37,7 @@ class TestLoader:
 
         assert docs == []
 
-    def test_load_document_raises_on_unsupported_format(
-        self, tmp_path: Path
-    ) -> None:
+    def test_load_document_raises_on_unsupported_format(self, tmp_path: Path) -> None:
         """Unsupported file types should raise a ValueError."""
         txt_file = tmp_path / "notes.txt"
         txt_file.write_text("plain text content")
@@ -71,7 +68,12 @@ class TestChunker:
         """
         # Create a document with enough text to require splitting
         long_text = "This is a sentence about design. " * 100
-        documents = [{"content": long_text, "metadata": {"source_file": "test.md", "page_number": 1}}]
+        documents = [
+            {
+                "content": long_text,
+                "metadata": {"source_file": "test.md", "page_number": 1},
+            }
+        ]
 
         chunks = chunk_documents(documents, chunk_size=200, chunk_overlap=0)
 

@@ -85,8 +85,7 @@ def embed_and_store(
     # ChromaDB metadata values must be str, int, float, or bool —
     # so we make sure everything is a simple type.
     metadatas: list[dict[str, str]] = [
-        {str(k): str(v) for k, v in chunk["metadata"].items()}
-        for chunk in chunks
+        {str(k): str(v) for k, v in chunk["metadata"].items()} for chunk in chunks
     ]
 
     # Upsert into ChromaDB (insert or update if ID already exists)

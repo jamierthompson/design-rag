@@ -41,12 +41,14 @@ def chunk_documents(
         text_pieces = splitter.split_text(doc["content"])
 
         for i, piece in enumerate(text_pieces):
-            chunks.append({
-                "content": piece,
-                "metadata": {
-                    **doc["metadata"],  # spread the original metadata
-                    "chunk_index": i,
-                },
-            })
+            chunks.append(
+                {
+                    "content": piece,
+                    "metadata": {
+                        **doc["metadata"],  # spread the original metadata
+                        "chunk_index": i,
+                    },
+                }
+            )
 
     return chunks

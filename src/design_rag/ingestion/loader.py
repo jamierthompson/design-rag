@@ -31,13 +31,15 @@ def load_pdf(file_path: str, original_filename: str | None = None) -> list[dict]
     for page_number, page in enumerate(reader.pages, start=1):
         text = page.extract_text() or ""
         if text.strip():  # skip blank pages
-            documents.append({
-                "content": text,
-                "metadata": {
-                    "source_file": source_name,
-                    "page_number": page_number,
-                },
-            })
+            documents.append(
+                {
+                    "content": text,
+                    "metadata": {
+                        "source_file": source_name,
+                        "page_number": page_number,
+                    },
+                }
+            )
 
     return documents
 

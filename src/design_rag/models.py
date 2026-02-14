@@ -10,10 +10,10 @@ FastAPI uses these models to generate OpenAPI docs (the Swagger UI).
 
 from pydantic import BaseModel, Field
 
-
 # ============================================================
 # /query endpoint models
 # ============================================================
+
 
 class QueryRequest(BaseModel):
     """What the client sends to ask a question."""
@@ -53,6 +53,7 @@ class QueryResponse(BaseModel):
 # /upload endpoint models
 # ============================================================
 
+
 class UploadResponse(BaseModel):
     """What we return after processing an uploaded document."""
 
@@ -64,6 +65,7 @@ class UploadResponse(BaseModel):
 # ============================================================
 # /documents endpoint models
 # ============================================================
+
 
 class DocumentInfo(BaseModel):
     """Info about a single document in a collection."""

@@ -53,11 +53,14 @@ def search(
         documents[0],
         metadatas[0],
         distances[0],
+        strict=True,
     ):
-        results.append({
-            "content": doc,
-            "metadata": metadata,
-            "score": round(1 - distance, 4),  # convert distance to similarity
-        })
+        results.append(
+            {
+                "content": doc,
+                "metadata": metadata,
+                "score": round(1 - distance, 4),  # convert distance to similarity
+            }
+        )
 
     return results
