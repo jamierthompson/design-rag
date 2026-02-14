@@ -1,0 +1,42 @@
+[project]
+name = "design-rag"
+version = "0.1.0"
+description = "RAG system over institutional interior design knowledge"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chromadb>=0.5.0,<1.0.0",
+    "fastapi>=0.115.0",
+    "langchain-text-splitters>=0.3.0",
+    "openai>=1.60.0",
+    "pydantic-settings>=2.7.0",
+    "pypdf>=5.0.0",
+    "python-multipart>=0.0.18",
+    "uvicorn>=0.34.0",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.0",
+    "pytest>=8.0",
+    "ruff>=0.8",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.uv]
+# onnxruntime >=1.21 dropped macOS x86_64 wheels. Pin to the last
+# version that ships them so chromadb installs on Intel Macs.
+override-dependencies = ["onnxruntime<1.21"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
