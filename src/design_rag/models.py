@@ -18,7 +18,12 @@ from pydantic import BaseModel, Field
 class QueryRequest(BaseModel):
     """What the client sends to ask a question."""
 
-    question: str = Field(..., min_length=1, description="The question to ask")
+    question: str = Field(
+        ...,
+        min_length=1,
+        max_length=1000,
+        description="The question to ask",
+    )
     collection_name: str = Field(
         default="default",
         description="Which document collection to search",
@@ -34,9 +39,26 @@ class QueryRequest(BaseModel):
         description=(
             "Optional metadata filters to narrow results. "
             'Example: {"topic_area": "pricing"} or '
-            '{"topic_area": "trade_standards", "document_type": "narrative"}'
+            '{"topic_area": "trade_standards", '
+            '"document_type": "narrative"}'
         ),
     )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "question": "How do I calculate the FIE?",
+                    "collection_name": "default",
+                    "n_results": 5,
+                },
+                {
+                    "question": "What are the trade standards?",
+                    "filter": {"topic_area": "trade_standards"},
+                },
+            ]
+        }
+    }
 
 
 class Source(BaseModel):
@@ -51,10 +73,12 @@ class Source(BaseModel):
 class QueryResponse(BaseModel):
     """What we return after answering a question."""
 
-    answer: str
-    sources: list[Source]
-    model: str
-    tokens_used: int
+    answer: str = Field(..., description="The LLM-generated answer")
+    sources: list[Source] = Field(
+        ..., description="Source chunks used to generate the answer"
+    )
+    model: str = Field(..., description="The LLM model used for generation")
+    tokens_used: int = Field(..., description="Total tokens consumed by the LLM call")
 
 
 # ============================================================

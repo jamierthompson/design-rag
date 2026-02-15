@@ -7,10 +7,12 @@ FastAPI gives us:
 - Async support (though we're using sync for simplicity)
 """
 
+import logging
 import tempfile
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, Request, UploadFile
+from fastapi.responses import JSONResponse
 
 from design_rag.ingestion.chunker import chunk_documents
 from design_rag.ingestion.classifier import classify_document
@@ -32,6 +34,8 @@ from design_rag.models import (
 )
 from design_rag.retrieval.qa import ask
 
+logger = logging.getLogger(__name__)
+
 # Create the FastAPI app instance
 app = FastAPI(
     title="DesignRAG",
@@ -41,6 +45,21 @@ app = FastAPI(
     ),
     version="0.1.0",
 )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Catch-all for unexpected errors so the API returns JSON, not HTML.
+
+    Without this, FastAPI returns a plain-text 500 page on unhandled errors.
+    This ensures every response is JSON (easier for API consumers to parse)
+    and logs the actual error for debugging.
+    """
+    logger.exception("Unhandled error on %s %s", request.method, request.url)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An internal error occurred. Check server logs."},
+    )
 
 
 # ============================================================
@@ -138,12 +157,19 @@ def upload_document(
 @app.post("/query", response_model=QueryResponse)
 def query_documents(request: QueryRequest) -> QueryResponse:
     """Ask a question and get an answer grounded in the uploaded documents."""
-    result = ask(
-        question=request.question,
-        collection_name=request.collection_name,
-        n_results=request.n_results,
-        filters=request.filter,
-    )
+    try:
+        result = ask(
+            question=request.question,
+            collection_name=request.collection_name,
+            n_results=request.n_results,
+            filters=request.filter,
+        )
+    except Exception as exc:
+        logger.exception("Query failed for: %s", request.question[:100])
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process query: {exc}",
+        ) from exc
 
     # Convert the raw dicts from ask() into our Pydantic Source model
     sources = [
