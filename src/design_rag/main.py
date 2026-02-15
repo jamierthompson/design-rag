@@ -13,9 +13,15 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, UploadFile
 
 from design_rag.ingestion.chunker import chunk_documents
-from design_rag.ingestion.embedder import embed_and_store, get_chroma_client
+from design_rag.ingestion.embedder import (
+    delete_by_source,
+    delete_collection,
+    embed_and_store,
+    get_chroma_client,
+)
 from design_rag.ingestion.loader import load_document
 from design_rag.models import (
+    DeleteResponse,
     DocumentInfo,
     DocumentsResponse,
     QueryRequest,
@@ -170,4 +176,34 @@ def list_documents(collection_name: str = "default") -> DocumentsResponse:
         collection=collection_name,
         documents=documents,
         total_chunks=len(metadatas),
+    )
+
+
+# ============================================================
+# DELETE /documents — remove documents from a collection
+# ============================================================
+
+
+@app.delete("/documents", response_model=DeleteResponse)
+def remove_documents(
+    collection_name: str = "default",
+    source_file: str | None = None,
+) -> DeleteResponse:
+    """Delete documents from a collection.
+
+    Two modes:
+    - If `source_file` is provided, delete only chunks from that file.
+      This is useful for re-ingesting a document after edits.
+    - If `source_file` is omitted, delete the entire collection.
+      This is useful for starting fresh during development.
+    """
+    if source_file:
+        result = delete_by_source(source_file, collection_name=collection_name)
+    else:
+        result = delete_collection(collection_name=collection_name)
+
+    return DeleteResponse(
+        collection=result["collection"],
+        source_file=source_file,
+        chunks_deleted=result["chunks_deleted"],
     )

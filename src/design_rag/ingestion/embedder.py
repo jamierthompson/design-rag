@@ -103,3 +103,72 @@ def embed_and_store(
         "collection": collection_name,
         "chunks_stored": len(chunks),
     }
+
+
+def delete_by_source(
+    source_file: str,
+    collection_name: str = "default",
+) -> dict:
+    """Delete all chunks from a specific source file in a collection.
+
+    Uses ChromaDB's `where` filter to find chunks matching the source_file
+    metadata, then deletes them by ID. This is useful for re-ingesting a
+    document after edits — delete the old chunks first, then upload again.
+
+    Args:
+        source_file: the filename to match against chunk metadata
+        collection_name: name of the ChromaDB collection
+
+    Returns:
+        dict with summary: {"collection": str, "chunks_deleted": int}
+    """
+    chroma = get_chroma_client()
+
+    try:
+        collection = chroma.get_collection(name=collection_name)
+    except Exception:
+        # Collection doesn't exist — nothing to delete
+        return {"collection": collection_name, "chunks_deleted": 0}
+
+    # Find all chunk IDs that belong to this source file
+    results = collection.get(
+        where={"source_file": source_file},
+        include=[],
+    )
+    ids_to_delete = results.get("ids") or []
+
+    if ids_to_delete:
+        collection.delete(ids=ids_to_delete)
+
+    return {
+        "collection": collection_name,
+        "chunks_deleted": len(ids_to_delete),
+    }
+
+
+def delete_collection(collection_name: str = "default") -> dict:
+    """Delete an entire collection from ChromaDB.
+
+    This removes all chunks, embeddings, and metadata for the collection.
+    Useful for starting fresh during development or testing.
+
+    Args:
+        collection_name: name of the ChromaDB collection to delete
+
+    Returns:
+        dict with summary: {"collection": str, "chunks_deleted": int}
+    """
+    chroma = get_chroma_client()
+
+    try:
+        collection = chroma.get_collection(name=collection_name)
+        chunk_count = collection.count()
+        chroma.delete_collection(name=collection_name)
+    except Exception:
+        # Collection doesn't exist — nothing to delete
+        return {"collection": collection_name, "chunks_deleted": 0}
+
+    return {
+        "collection": collection_name,
+        "chunks_deleted": chunk_count,
+    }
