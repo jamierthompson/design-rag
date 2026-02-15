@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from design_rag.ingestion.chunker import chunk_documents
-from design_rag.ingestion.loader import load_document, load_markdown
+from design_rag.ingestion.loader import _normalize_text, load_document, load_markdown
 
 
 class TestLoader:
@@ -44,6 +44,41 @@ class TestLoader:
 
         with pytest.raises(ValueError, match="Unsupported file type: .txt"):
             load_document(str(txt_file))
+
+
+class TestNormalizeText:
+    """Tests for PDF text normalization."""
+
+    def test_collapses_excessive_spaces(self) -> None:
+        """Multiple spaces between words should become a single space."""
+        raw = "JAMIE  THOMPSON  STUDIO   Trade  Standards"
+        assert _normalize_text(raw) == "JAMIE THOMPSON STUDIO Trade Standards"
+
+    def test_collapses_word_per_line_artifacts(self) -> None:
+        """pypdf word-per-line pattern should become spaces."""
+        raw = "Anyone\n \nwho\n \nperforms\n \nwork"
+        assert _normalize_text(raw) == "Anyone who performs work"
+
+    def test_collapses_all_whitespace_to_flowing_text(self) -> None:
+        """Excessive newlines and spaces should all collapse to single spaces."""
+        raw = "Section A\n\n\n\n\nSection B"
+        assert _normalize_text(raw) == "Section A Section B"
+
+    def test_strips_leading_and_trailing_whitespace(self) -> None:
+        """Leading/trailing whitespace should be removed."""
+        raw = "  hello  world  "
+        assert _normalize_text(raw) == "hello world"
+
+    def test_handles_realistic_pypdf_output(self) -> None:
+        """Realistic pypdf output with mixed patterns should become clean text."""
+        raw = (
+            "JAMIE  THOMPSON  STUDIO   Trade  Standards  \n"
+            "Deﬁnitions  \n"
+            "Trade:\n  \nAnyone\n \nwho\n \nperforms\n \nwork."
+        )
+        result = _normalize_text(raw)
+        assert "  " not in result
+        assert "Anyone who performs work." in result
 
 
 class TestChunker:
