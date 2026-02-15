@@ -1,0 +1,207 @@
+{
+  "description": "Hand-labeled Q&A test set for evaluating DesignRAG retrieval and answer quality. Each question is grounded in specific facts from the corpus documents.",
+  "version": "1.0",
+  "total_pairs": 25,
+  "test_pairs": [
+    {
+      "id": "trade-1",
+      "question": "What is the definition of a Trade in the context of interior design projects?",
+      "expected_answer": "A Trade is anyone performing work on the project site. Examples include general contractors, painters, window treatment vendors, glass vendors, stone vendors, and movers.",
+      "expected_sources": ["trade-standards.pdf"],
+      "topic_area": "trade_standards",
+      "difficulty": "easy"
+    },
+    {
+      "id": "trade-2",
+      "question": "When is a Trade Agreement required to be signed, and who receives it?",
+      "expected_answer": "The Trade Agreement is given to all Trades involved in a project, but only those hired and paid through Jamie Thompson Studio are required to sign it. General contractors receive it for clarity on communication and job site expectations but are not required to sign.",
+      "expected_sources": ["trade-standards.pdf"],
+      "topic_area": "trade_standards",
+      "difficulty": "medium"
+    },
+    {
+      "id": "trade-3",
+      "question": "How many bids does the studio typically get for large budget projects?",
+      "expected_answer": "The studio gets 2-3 bids for large budget projects from the start. If a client hasn't built or renovated before and only one Trade quotes, the client often requests an additional quote for price comfort.",
+      "expected_sources": ["trade-standards.pdf"],
+      "topic_area": "trade_standards",
+      "difficulty": "easy"
+    },
+    {
+      "id": "trade-4",
+      "question": "How does the studio handle change orders that involve both a general contractor's scope and additional design work?",
+      "expected_answer": "When a change order is related to the GC's scope, the GC provides a proposal. If the change also involves additional design work, the studio provides a flat design fee as well.",
+      "expected_sources": ["trade-standards.pdf"],
+      "topic_area": "trade_standards",
+      "difficulty": "medium"
+    },
+    {
+      "id": "trade-5",
+      "question": "How should the studio respond when a client asks whether there is a markup on trades?",
+      "expected_answer": "The recommended response is: 'Yes, for those that you hire through our firm, a fee is included to vet, select, manage and oversee those trades.' The studio adds a project management fee to Trades hired and managed on behalf of clients, as noted in the design agreement.",
+      "expected_sources": ["trade-standards.pdf"],
+      "topic_area": "trade_standards",
+      "difficulty": "hard"
+    },
+    {
+      "id": "pricing-1",
+      "question": "How do you calculate the Furnishings Investment Estimate (FIE) per square foot?",
+      "expected_answer": "The FIE per square foot is calculated by dividing the Total Spent on Furnishings by the Total Square Feet. Freight and tax should not be included in the total. If trade numbers are run through the firm, they should be included but specified to the client if the FIE doesn't reflect trade estimates.",
+      "expected_sources": ["how-to-price-your-services.md"],
+      "topic_area": "pricing",
+      "difficulty": "easy"
+    },
+    {
+      "id": "pricing-2",
+      "question": "What is the FIE per square foot for a room with $21,000 in full furnishings and 168 square feet?",
+      "expected_answer": "$125 per square foot. This is calculated as $21,000 ÷ 168 sq ft = $125/sq ft. This is an example of a Full Furnishings project (Room B).",
+      "expected_sources": ["how-to-price-your-services.md"],
+      "topic_area": "pricing",
+      "difficulty": "medium"
+    },
+    {
+      "id": "pricing-3",
+      "question": "What are the per-square-foot pricing benchmarks for a designer with 20 years of experience in a major metro area?",
+      "expected_answer": "For Case Study A (major metro, 20 years experience): Decorative Design Fee is $20/sq ft, Build/Renovate Design Fee is $40/sq ft, Build/Renovate Furnishings FIE is $225/sq ft, Full Furnishings FIE is $150/sq ft, and Partial Furnishings FIE is $80/sq ft.",
+      "expected_sources": ["how-to-price-your-services.md"],
+      "topic_area": "pricing",
+      "difficulty": "medium"
+    },
+    {
+      "id": "pricing-4",
+      "question": "How is the Flat Design Fee per square foot calculated?",
+      "expected_answer": "The Flat Design Fee per square foot is calculated as (Total Hours Spent × Hourly Rate) ÷ Total Square Feet. For example, Room A with 60 hours at $144/hour and 240 sq ft equals $36/sq ft.",
+      "expected_sources": ["how-to-price-your-services.md"],
+      "topic_area": "pricing",
+      "difficulty": "easy"
+    },
+    {
+      "id": "pricing-5",
+      "question": "How do pricing benchmarks differ between a major metro area and a rural area for a designer with 5 years of experience?",
+      "expected_answer": "For a designer with 5 years of experience: In a major metro (Case Study B), the Decorative Design Fee is $18/sq ft and Full Furnishings FIE is $150/sq ft. In a rural area (Case Study D), the Decorative Design Fee is $14/sq ft and Full Furnishings FIE is $90/sq ft. Build/Renovate Furnishings FIE also differs: $225/sq ft in metro vs $160/sq ft in rural.",
+      "expected_sources": ["how-to-price-your-services.md"],
+      "topic_area": "pricing",
+      "difficulty": "hard"
+    },
+    {
+      "id": "meeting-1",
+      "question": "What formatting standards should be followed when taking meeting notes?",
+      "expected_answer": "Meeting notes should use the meeting agenda as the starting structure, use bullet points instead of full sentences, use client names (e.g., 'the Smiths') rather than the word 'clients', and keep client codes as internal only.",
+      "expected_sources": ["note-taking-checklist.md"],
+      "topic_area": "meeting_procedures",
+      "difficulty": "easy"
+    },
+    {
+      "id": "meeting-2",
+      "question": "How should action items be organized in meeting notes?",
+      "expected_answer": "Action items should identify all next steps with the responsible party and target completion date. They should be separated into distinct lists by responsible party: Design Studio, Client, Architect, Contractor, etc. Design Studio action items should be written back to project_tasks through the tool layer with assigned owners and due dates. Unresolved items should be flagged as open items for the next meeting agenda.",
+      "expected_sources": ["note-taking-checklist.md"],
+      "topic_area": "meeting_procedures",
+      "difficulty": "medium"
+    },
+    {
+      "id": "meeting-3",
+      "question": "What is the naming convention for storing meeting notes?",
+      "expected_answer": "Meeting notes should follow the naming convention: {CLIENT_CODE} - {MEETING_TYPE} Notes - {DATE}. For example: 'SMI - Conceptual Design Meeting Notes - 2026.03.15'. Notes are stored via the store_document() tool, and the meetings table should link notes to the meeting record and transcript reference.",
+      "expected_sources": ["note-taking-checklist.md"],
+      "topic_area": "meeting_procedures",
+      "difficulty": "medium"
+    },
+    {
+      "id": "meeting-4",
+      "question": "What is the studio's revision policy for design meetings?",
+      "expected_answer": "One round of revisions is included in the flat fee for each design meeting. Additional revisions require an additional flat fee and additional project timeline time. 'One round' means as many revisions as requested, so long as they don't roll back previous phase decisions and are communicated at one time. 'At one time' means all changes together — not multiple emails, phone calls, and texts separately. For example, one meeting with minutes confirmed, or in writing via a single email.",
+      "expected_sources": ["cdm-agenda-meeting-notes-template.md"],
+      "topic_area": "meeting_procedures",
+      "difficulty": "hard"
+    },
+    {
+      "id": "meeting-5",
+      "question": "What are the main objectives of a Conceptual Design Meeting?",
+      "expected_answer": "The three main objectives of a Conceptual Design Meeting are: confirm aesthetic direction, confirm layout, and confirm investment amount. The agenda includes reviewing boards for aesthetic direction, reviewing floorplans and relevant elevations, reviewing the Furnishings Investment Estimate, and approving the aesthetic direction, layout, and signing the FIE.",
+      "expected_sources": ["cdm-agenda-meeting-notes-template.md"],
+      "topic_area": "meeting_procedures",
+      "difficulty": "easy"
+    },
+    {
+      "id": "client-1",
+      "question": "What product is recommended for cleaning marble, granite, and stone surfaces?",
+      "expected_answer": "The recommended product is Miracle brand, specifically Miracle Sealants Liquid Poultice Biodegradable Cleaner Part A and B. It is a pH neutral stone cleaner recommended by stone experts for use on all stone, marble, and granite surfaces.",
+      "expected_sources": ["home-maintenance-template.pdf"],
+      "topic_area": "client_relations",
+      "difficulty": "easy"
+    },
+    {
+      "id": "client-2",
+      "question": "What should be used to clean specialty glass surfaces like painted glass, stained glass, and antique mirrors?",
+      "expected_answer": "Sprayaway Glass Cleaner should be used, and ammonia must be avoided. This applies to dining room tables, painted glass, stained glass, antique mirrors, and bronze mirrors. Avoiding ammonia is important to preserve the glass. This is the glass installer's recommendation.",
+      "expected_sources": ["home-maintenance-template.pdf"],
+      "topic_area": "client_relations",
+      "difficulty": "medium"
+    },
+    {
+      "id": "client-3",
+      "question": "What is the recommended annual maintenance routine for wood furniture?",
+      "expected_answer": "Wood tables should be buffed periodically with a lint-free cloth to renew shine. For spills, use a damp cloth with distilled water or a one-to-one vinegar and distilled water solution, then buff dry. For annual maintenance, apply a coat of Danish oil (Watco Danish Oil Wood Finish, Low VOC is recommended).",
+      "expected_sources": ["home-maintenance-template.pdf"],
+      "topic_area": "client_relations",
+      "difficulty": "medium"
+    },
+    {
+      "id": "client-4",
+      "question": "What is the recommended approach for protecting hardwood floors from furniture damage?",
+      "expected_answer": "Felt pads should be added to the bottoms of all furniture before placing on hardwood floors. The tip from the floor specialist is to not rely on the adhesive that comes with felt pads — instead, use hot glue to ensure the pads stay in place. For cleaning hardwood floors, use a product like Bona Hardwood Floor Cleaner that doesn't cause oil buildup.",
+      "expected_sources": ["home-maintenance-template.pdf"],
+      "topic_area": "client_relations",
+      "difficulty": "medium"
+    },
+    {
+      "id": "client-5",
+      "question": "What product and service are recommended for upholstery and carpet professional cleaning?",
+      "expected_answer": "For spot cleaning carpets, the recommended product is Capture Carpet Dry Cleaning Kit 100. For professional upholstery and carpet cleaning, Fiberseal is the recommended service, and their location finder is available at fiberseal.com. Each carpet should also be checked individually for vacuum recommendations.",
+      "expected_sources": ["home-maintenance-template.pdf"],
+      "topic_area": "client_relations",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ops-1",
+      "question": "What should you ask a receiver vendor about their process for handling discrepancies in deliveries?",
+      "expected_answer": "You should ask what steps they take when they notice discrepancies such as wrong items, damaged goods, or missing items. You should also ask whether they take pictures of boxes before they are opened and whether they keep the original box in case an item needs to be sent back.",
+      "expected_sources": ["interview-questions-for-receivers.pdf"],
+      "topic_area": "operations",
+      "difficulty": "easy"
+    },
+    {
+      "id": "ops-2",
+      "question": "What questions should be asked about a receiver's storage and warehouse capabilities?",
+      "expected_answer": "You should ask about storage fees and delivery fees, whether the warehouse is climate controlled, whether there are any additional fees that could be incurred, and how they charge for small items like lighting and hardware. You should also ask if they will provide quotes when given purchase orders or specs of pieces in advance.",
+      "expected_sources": ["interview-questions-for-receivers.pdf"],
+      "topic_area": "operations",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ops-3",
+      "question": "What should you ask about a receiver's delivery and scheduling logistics?",
+      "expected_answer": "You should ask how far in advance deliveries can be scheduled, whether they have travel or delivery restrictions during certain weather conditions, whether they will remove all trash related to the delivery, and whether you can pick up one-off items at the warehouse with just a receiving charge.",
+      "expected_sources": ["interview-questions-for-receivers.pdf"],
+      "topic_area": "operations",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ops-4",
+      "question": "What questions should be asked about a receiver's inventory management and communication systems?",
+      "expected_answer": "You should ask what system they use for inventory management and whether that system is how they communicate with customers. You should also ask how you are updated when an item arrives, is inspected, and received, and how they would like things to be side marked.",
+      "expected_sources": ["interview-questions-for-receivers.pdf"],
+      "topic_area": "operations",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ops-5",
+      "question": "What should you ask a receiver about their inspection process and quality control for incoming deliveries?",
+      "expected_answer": "You should ask what steps they take to inspect products before signing off on deliveries, whether they take pictures of boxes before opening, whether they keep the original box for potential returns, and what their process is for repairing items. You should also ask how they work with customers to handle returns if an item comes in damaged.",
+      "expected_sources": ["interview-questions-for-receivers.pdf"],
+      "topic_area": "operations",
+      "difficulty": "hard"
+    }
+  ]
+}
