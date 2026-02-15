@@ -13,7 +13,9 @@ from fastapi.testclient import TestClient
 
 from design_rag.main import app
 
-client = TestClient(app)
+# raise_server_exceptions=False lets us test our custom error handler
+# without the TestClient re-raising the underlying exception.
+client = TestClient(app, raise_server_exceptions=False)
 
 
 @pytest.fixture()
@@ -174,3 +176,87 @@ class TestDeleteDocuments:
         # Verify nothing was actually deleted
         collection = ephemeral.get_collection(name="default")
         assert collection.count() == 3
+
+
+class TestQueryValidation:
+    """Tests for input validation on the POST /query endpoint."""
+
+    def test_rejects_empty_question(self) -> None:
+        """An empty question string should be rejected."""
+        response = client.post(
+            "/query",
+            json={"question": ""},
+        )
+        assert response.status_code == 422
+
+    def test_rejects_missing_question(self) -> None:
+        """A request body with no question field should be rejected."""
+        response = client.post(
+            "/query",
+            json={"collection_name": "default"},
+        )
+        assert response.status_code == 422
+
+    def test_rejects_question_too_long(self) -> None:
+        """A question exceeding max_length should be rejected."""
+        long_question = "a" * 1001
+        response = client.post(
+            "/query",
+            json={"question": long_question},
+        )
+        assert response.status_code == 422
+
+    def test_rejects_invalid_n_results(self) -> None:
+        """n_results outside the valid range (1-20) should be rejected."""
+        response = client.post(
+            "/query",
+            json={"question": "valid question", "n_results": 0},
+        )
+        assert response.status_code == 422
+
+        response = client.post(
+            "/query",
+            json={"question": "valid question", "n_results": 21},
+        )
+        assert response.status_code == 422
+
+
+@pytest.mark.usefixtures("_use_ephemeral_chroma")
+class TestListDocuments:
+    """Tests for the GET /documents endpoint."""
+
+    def test_empty_collection_returns_empty_list(self) -> None:
+        """A nonexistent collection should return an empty document list."""
+        response = client.get(
+            "/documents",
+            params={"collection_name": "nonexistent"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["documents"] == []
+        assert data["total_chunks"] == 0
+
+    def test_lists_documents_with_chunk_counts(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Should return document names and their chunk counts."""
+        ephemeral = chromadb.Client()
+        monkeypatch.setattr("design_rag.main.get_chroma_client", lambda: ephemeral)
+        _seed_collection(ephemeral)
+
+        response = client.get("/documents")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total_chunks"] == 3
+        assert len(data["documents"]) == 2
+
+        # Documents should be sorted by filename
+        filenames = [d["filename"] for d in data["documents"]]
+        assert filenames == ["pricing.md", "trade-standards.pdf"]
+
+        # Check chunk counts
+        docs_by_name = {d["filename"]: d for d in data["documents"]}
+        assert docs_by_name["trade-standards.pdf"]["chunk_count"] == 2
+        assert docs_by_name["pricing.md"]["chunk_count"] == 1
