@@ -1,11 +1,12 @@
 """
 RAG Q&A — the final step that ties retrieval and generation together.
 
-The "RAG" pattern:
-1. Retrieve relevant context from the vector store
-2. Trim context to fit within the token budget
-3. Augment the user's question with that context
-4. Generate an answer using an LLM, grounded in the retrieved context
+The full pipeline:
+1. Retrieve relevant chunks via vector similarity search
+2. Rerank chunks with an LLM (optional, configurable)
+3. Trim context to fit within the token budget
+4. Augment the user's question with that context
+5. Generate an answer using an LLM, grounded in the retrieved context
 
 By telling the LLM to ONLY use the provided context, we reduce
 hallucination and can cite exactly where each answer came from.
@@ -17,6 +18,7 @@ import tiktoken
 
 from design_rag.config import get_settings
 from design_rag.ingestion.embedder import get_openai_client
+from design_rag.retrieval.reranker import rerank
 from design_rag.retrieval.search import search
 
 logger = logging.getLogger(__name__)
@@ -146,11 +148,14 @@ def ask(
     settings = get_settings()
     client = get_openai_client()
 
-    # Step 1: Retrieve relevant chunks (with optional metadata filtering)
+    # Step 1: Retrieve relevant chunks (with optional metadata filtering).
+    # When reranking is enabled, fetch 2x candidates so the reranker has
+    # a larger pool to re-score — the top N survive after reranking.
+    fetch_count = n_results * 2 if settings.reranking_enabled else n_results
     results = search(
         question,
         collection_name=collection_name,
-        n_results=n_results,
+        n_results=fetch_count,
         filters=filters,
     )
 
@@ -164,18 +169,24 @@ def ask(
             "tokens_used": 0,
         }
 
-    # Step 2: Trim context to fit within the token budget
+    # Step 2: Rerank (if enabled) — LLM re-scores chunks by relevance,
+    # then we take the top n_results after re-sorting
+    if settings.reranking_enabled:
+        results = rerank(question, results)
+        results = results[:n_results]
+
+    # Step 3: Trim context to fit within the token budget
     results = trim_to_token_budget(
         results,
         token_budget=settings.context_token_budget,
         model=settings.llm_model,
     )
 
-    # Step 3: Build the prompt with retrieved context
+    # Step 4: Build the prompt with retrieved context
     context = build_context(results)
     user_message = RAG_USER_TEMPLATE.format(context=context, question=question)
 
-    # Step 4: Call the LLM
+    # Step 5: Call the LLM
     response = client.chat.completions.create(
         model=settings.llm_model,
         messages=[
@@ -188,7 +199,7 @@ def ask(
     answer = response.choices[0].message.content
     tokens_used = response.usage.total_tokens if response.usage else 0
 
-    # Step 5: Package the response with sources for citations
+    # Step 6: Package the response with sources for citations
     sources = [
         {
             "content": r["content"],
