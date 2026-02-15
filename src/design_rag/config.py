@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     chunk_size: int = 1000
     chunk_overlap: int = 200
+    context_token_budget: int = 4000
 
     model_config = {
         "env_file": str(PROJECT_ROOT / ".env"),
