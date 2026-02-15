@@ -29,6 +29,14 @@ class QueryRequest(BaseModel):
         le=20,
         description="Number of chunks to retrieve for context",
     )
+    filter: dict[str, str] | None = Field(
+        default=None,
+        description=(
+            "Optional metadata filters to narrow results. "
+            'Example: {"topic_area": "pricing"} or '
+            '{"topic_area": "trade_standards", "document_type": "narrative"}'
+        ),
+    )
 
 
 class Source(BaseModel):

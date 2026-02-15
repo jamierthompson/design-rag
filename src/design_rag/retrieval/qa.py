@@ -41,6 +41,7 @@ def ask(
     question: str,
     collection_name: str = "default",
     n_results: int = 5,
+    filters: dict[str, str] | None = None,
 ) -> dict:
     """Ask a question and get an answer grounded in the stored documents.
 
@@ -48,6 +49,7 @@ def ask(
         question: the user's question
         collection_name: which collection to search
         n_results: how many chunks to retrieve for context
+        filters: optional metadata filters (e.g., {"topic_area": "pricing"})
 
     Returns:
         dict with: answer, sources, model, tokens_used
@@ -55,8 +57,13 @@ def ask(
     settings = get_settings()
     client = get_openai_client()
 
-    # Step 1: Retrieve relevant chunks
-    results = search(question, collection_name=collection_name, n_results=n_results)
+    # Step 1: Retrieve relevant chunks (with optional metadata filtering)
+    results = search(
+        question,
+        collection_name=collection_name,
+        n_results=n_results,
+        filters=filters,
+    )
 
     if not results:
         return {
