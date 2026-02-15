@@ -142,6 +142,7 @@ def query_documents(request: QueryRequest) -> QueryResponse:
         question=request.question,
         collection_name=request.collection_name,
         n_results=request.n_results,
+        filters=request.filter,
     )
 
     # Convert the raw dicts from ask() into our Pydantic Source model
