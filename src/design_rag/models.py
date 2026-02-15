@@ -80,3 +80,19 @@ class DocumentsResponse(BaseModel):
     collection: str
     documents: list[DocumentInfo]
     total_chunks: int
+
+
+# ============================================================
+# DELETE /documents endpoint models
+# ============================================================
+
+
+class DeleteResponse(BaseModel):
+    """What we return after deleting documents from a collection."""
+
+    collection: str = Field(..., description="Collection the chunks were deleted from")
+    source_file: str | None = Field(
+        None,
+        description="Source filename that was deleted (None if entire collection)",
+    )
+    chunks_deleted: int = Field(..., description="Number of chunks removed")

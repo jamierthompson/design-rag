@@ -7,9 +7,35 @@ logical page or section. Every dict has:
     - metadata: info we'll carry through the pipeline for citations later
 """
 
+import re
 from pathlib import Path
 
 from pypdf import PdfReader
+
+
+def _normalize_text(text: str) -> str:
+    """Clean up whitespace artifacts from PDF text extraction.
+
+    pypdf often puts individual words on separate lines with whitespace-only
+    lines between them (e.g., "word\\n \\nword\\n \\nword"). This function
+    collapses that pattern back into readable prose.
+
+    The approach:
+    1. Replace the pypdf word-boundary pattern (\\n<whitespace>\\n) with a
+       single space — this rejoins words that were split across lines
+    2. Collapse remaining excessive whitespace (multiple spaces, runs of
+       newlines) into clean single spaces and paragraph breaks
+    """
+    # Replace the pypdf word-boundary pattern: \n followed by whitespace-only
+    # followed by \n. This is NOT a real paragraph break — it's just how pypdf
+    # separates words in some PDF layouts.
+    text = re.sub(r"\n[ \t]*\n", " ", text)
+    # Now collapse any remaining runs of whitespace (spaces, tabs, newlines)
+    # into a single space. At this point real paragraph structure from the PDF
+    # is already lost (pypdf flattened it), so we produce clean flowing text
+    # and let the chunker find its own split points.
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
 
 
 def load_pdf(file_path: str, original_filename: str | None = None) -> list[dict]:
@@ -29,8 +55,9 @@ def load_pdf(file_path: str, original_filename: str | None = None) -> list[dict]
 
     documents = []
     for page_number, page in enumerate(reader.pages, start=1):
-        text = page.extract_text() or ""
-        if text.strip():  # skip blank pages
+        raw_text = page.extract_text() or ""
+        text = _normalize_text(raw_text)
+        if text:  # skip blank pages
             documents.append(
                 {
                     "content": text,

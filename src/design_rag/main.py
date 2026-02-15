@@ -13,9 +13,16 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, UploadFile
 
 from design_rag.ingestion.chunker import chunk_documents
-from design_rag.ingestion.embedder import embed_and_store, get_chroma_client
+from design_rag.ingestion.classifier import classify_document
+from design_rag.ingestion.embedder import (
+    delete_by_source,
+    delete_collection,
+    embed_and_store,
+    get_chroma_client,
+)
 from design_rag.ingestion.loader import load_document
 from design_rag.models import (
+    DeleteResponse,
     DocumentInfo,
     DocumentsResponse,
     QueryRequest,
@@ -56,10 +63,16 @@ def health_check() -> dict[str, str]:
 def upload_document(
     file: UploadFile,
     collection_name: str = "default",
+    topic_area: str | None = None,
+    document_type: str | None = None,
 ) -> UploadResponse:
     """Upload a PDF or Markdown file and process it into the vector store.
 
-    The pipeline: load → chunk → embed → store in ChromaDB
+    The pipeline: load → classify → chunk → embed → store in ChromaDB
+
+    Topic area and document type are auto-detected by an LLM classifier.
+    Pass them explicitly to override auto-detection (useful if the LLM
+    misclassifies a document).
     """
     # Validate file type
     if file.filename is None:
@@ -80,8 +93,30 @@ def upload_document(
         tmp_path = tmp.name
 
     try:
-        # Run the ingestion pipeline
+        # Step 1: Load the document into page/section dicts
         documents = load_document(tmp_path, original_filename=file.filename)
+
+        # Step 2: Classify — auto-detect or use manual overrides
+        if topic_area and document_type:
+            classification = {
+                "topic_area": topic_area,
+                "document_type": document_type,
+            }
+        else:
+            classification = classify_document(documents)
+            # Allow partial overrides (e.g., correct topic but auto-detect type)
+            if topic_area:
+                classification["topic_area"] = topic_area
+            if document_type:
+                classification["document_type"] = document_type
+
+        # Step 3: Inject classification metadata into every document dict
+        # so it propagates through chunking to every chunk's metadata
+        for doc in documents:
+            doc["metadata"]["topic_area"] = classification["topic_area"]
+            doc["metadata"]["document_type"] = classification["document_type"]
+
+        # Step 4: Chunk and embed
         chunks = chunk_documents(documents)
         result = embed_and_store(chunks, collection_name=collection_name)
 
@@ -170,4 +205,34 @@ def list_documents(collection_name: str = "default") -> DocumentsResponse:
         collection=collection_name,
         documents=documents,
         total_chunks=len(metadatas),
+    )
+
+
+# ============================================================
+# DELETE /documents — remove documents from a collection
+# ============================================================
+
+
+@app.delete("/documents", response_model=DeleteResponse)
+def remove_documents(
+    collection_name: str = "default",
+    source_file: str | None = None,
+) -> DeleteResponse:
+    """Delete documents from a collection.
+
+    Two modes:
+    - If `source_file` is provided, delete only chunks from that file.
+      This is useful for re-ingesting a document after edits.
+    - If `source_file` is omitted, delete the entire collection.
+      This is useful for starting fresh during development.
+    """
+    if source_file:
+        result = delete_by_source(source_file, collection_name=collection_name)
+    else:
+        result = delete_collection(collection_name=collection_name)
+
+    return DeleteResponse(
+        collection=result["collection"],
+        source_file=source_file,
+        chunks_deleted=result["chunks_deleted"],
     )
