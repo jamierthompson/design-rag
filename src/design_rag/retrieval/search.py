@@ -5,6 +5,13 @@ How it works:
 1. The user's question gets embedded into a vector (same model as ingestion)
 2. ChromaDB compares that vector against all stored chunk vectors
 3. It returns the closest matches — "closest" meaning most semantically similar
+
+Hybrid search (keyword + semantic) was evaluated and intentionally skipped.
+With a 27-chunk corpus, vector similarity already surfaces the correct
+documents for both natural language and exact-term queries (tested with
+domain terms like "FIE", "Fiberseal", "change order"). Adding a keyword
+index would add complexity for marginal benefit at this corpus size.
+Revisit if evaluation scores reveal keyword-specific retrieval failures.
 """
 
 from design_rag.ingestion.embedder import embed_texts, get_chroma_client
