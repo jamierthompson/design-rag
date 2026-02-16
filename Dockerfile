@@ -9,13 +9,16 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 # when pyproject.toml or uv.lock changes, not on every code edit.
 COPY pyproject.toml uv.lock ./
 
-# Create a minimal README so hatchling's build validation passes
-RUN echo "# DesignRAG" > README.md
+# Install dependencies only (cached layer) — --no-install-project skips
+# building the project package, which needs src/ that isn't copied yet.
+RUN uv sync --frozen --no-dev --no-install-project
 
-RUN uv sync --frozen --no-dev
-
-# Copy application code
+# Copy application code and README (needed by hatchling build metadata)
 COPY src/ ./src/
+COPY README.md ./
+
+# Now install the project package itself
+RUN uv sync --frozen --no-dev
 
 EXPOSE 8000
 
