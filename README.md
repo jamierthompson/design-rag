@@ -2,8 +2,6 @@
 
 A **Retrieval-Augmented Generation (RAG)** system built for interior design knowledge. Upload design documents (PDFs, Markdown), then ask questions and get cited answers grounded in your source material.
 
-> **Part of the [AI-Native Design Studio](https://github.com/jamierthompson/studio-os)** — a suite of AI tools for a solo interior design practice. DesignRAG is the knowledge layer that makes institutional design expertise searchable and citable.
-
 ## How It Works
 
 ```
