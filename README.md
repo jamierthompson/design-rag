@@ -71,7 +71,7 @@ open http://localhost:8000/docs
 
 ```bash
 # Bulk ingest a directory of PDFs and Markdown files
-uv run python -m design_rag.scripts.bulk_ingest ../docs
+uv run python -m design_rag.scripts.bulk_ingest docs/
 
 # Reset and re-ingest everything (useful after config changes)
 uv run python -m design_rag.scripts.seed

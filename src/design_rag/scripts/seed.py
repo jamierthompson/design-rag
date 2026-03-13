@@ -22,10 +22,10 @@ from pathlib import Path
 from design_rag.ingestion.embedder import delete_collection
 from design_rag.scripts.bulk_ingest import bulk_ingest
 
-# Default docs directory: ../../docs relative to the project root.
+# Default docs directory: docs/ at the project root.
 # Path: seed.py → scripts/ → design_rag/ → src/ → design-rag/
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-DEFAULT_DOCS_DIR = PROJECT_ROOT.parent / "docs"
+DEFAULT_DOCS_DIR = PROJECT_ROOT / "docs"
 
 logging.basicConfig(
     level=logging.INFO,
