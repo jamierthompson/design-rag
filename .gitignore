@@ -57,3 +57,7 @@ chroma_db/
 
 # Evaluation results (generated, may contain large JSON output)
 eval/results/
+
+# Source documents for ingestion (user-provided, not tracked)
+docs/*
+!docs/.gitkeep
